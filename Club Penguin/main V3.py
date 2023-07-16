@@ -10,7 +10,7 @@ Variables
 '''
 worldx = 1500
 worldy = 820
-fps = 40  # frame rate
+fps = 20  # frame rate
 ani = 4  # animation cycles
 world = pygame.display.set_mode([worldx, worldy])
 player_width = 80
@@ -34,7 +34,7 @@ class Player(pygame.sprite.Sprite):
         self.movey = 0
         self.frame = 0
         self.images = []
-        for i in range(1, 5):
+        for i in range(1, 8):
             img = pygame.image.load(os.path.join('Python-projects','Club Penguin','images', 'player' + str(i) + '.png')).convert()
             img = pygame.transform.scale(img, (player_width, player_height))  # Resize the image
             img.convert_alpha()  # optimise alpha
@@ -57,20 +57,28 @@ class Player(pygame.sprite.Sprite):
 
         self.rect.x = self.rect.x + self.movex
         self.rect.y = self.rect.y + self.movey
+        
+        # moving animation leste
+        
+        # moving animation oeste
 
-        # moving left
+        # moving animation sudoeste
         if self.movex < 0:
             self.frame += 1
             if self.frame > 3*ani:
                 self.frame = 0
             self.image = pygame.transform.flip(self.images[self.frame // ani], True, False)
 
-        # moving right
+        # moving animation sudeste
         if self.movex > 0:
             self.frame += 1
             if self.frame > 3*ani:
                 self.frame = 0
             self.image = self.images[self.frame//ani]
+            
+        # moving animation norte
+        
+        #moving animation sul
         
 
     
