@@ -138,22 +138,40 @@ while main:
         if pygame.mouse.get_pressed()[0]:
             pos = pygame.mouse.get_pos()
             requiredPos = pos
-            stepsY = ((pos[1]-player.position()[1])/(pos[0]-player.position()[0]))*steps
-            if((pos[0] - player.position()[0]) > 0 and (pos[1] - player.position()[1]) > 0):
-                player.control(steps,stepsY) # Como o steps é igual para o movimento de X e de Y, ele só sabe andar em diagonal..
-                                            # o valor de steps pra X e Y precisa ser um cálculo exato
-                                            # se o player está em (500,500) e ele quer ir para (600,900), o "steps" do x poderia ser 10, 
-                                            # porém o steps de y teria de ser (900-500)/(600-500) = 4
-                                            # Ou seja, é necessário o player "andar" 4 vezes mais para chegar no RequiredPos
+            stepsY = abs(((pos[1]-player.position()[1])/(pos[0]-player.position()[0]))*steps)
+            stepsX = abs(((pos[0]-player.position()[0])/(pos[1]-player.position()[1]))*steps)
+            # o valor de steps pra X e Y precisa ser um cálculo exato
+            # se o player está em (500,500) e ele quer ir para (600,900), o "steps" do x poderia ser 10, 
+            # porém o steps de y teria de ser (900-500)/(600-500) = 4
+            # Ou seja, é necessário o player "andar" 4 vezes mais para chegar no RequiredPos
+            
+            
+            XorY = abs((pos[0] - player.position()[0])) - abs((pos[1] - player.position()[1])) # se XorY > 0, x é maior. Se for < 0, y é maior
+   
+            
+            if((pos[0] - player.position()[0]) > 0 and (pos[1] - player.position()[1]) > 0): # Clicou pra nordeste
+                if (XorY>0):
+                    player.control(steps,stepsY) # se o caminho de X for maior que o Y, o caminho de Y que será calculado
+                else:
+                    player.control(stepsX,steps) # se o caminho de Y for maior que o X, o caminho de X que será calculado
+                    
+            if((pos[0] - player.position()[0]) > 0 and (pos[1] - player.position()[1]) < 0): # Clicou pra sudeste
+                if (XorY>0):
+                    player.control(steps,-stepsY)
+                else:
+                    player.control(stepsX,-steps)
                 
-            if((pos[0] - player.position()[0]) > 0 and (pos[1] - player.position()[1]) < 0):
-                player.control(steps,-stepsY)
+            if((pos[0] - player.position()[0]) < 0 and (pos[1] - player.position()[1]) > 0): # Clicou pra noroeste
+                if (XorY>0):
+                    player.control(-steps,stepsY)
+                else:
+                    player.control(-stepsX,steps)
                 
-            if((pos[0] - player.position()[0]) < 0 and (pos[1] - player.position()[1]) > 0):
-                player.control(-steps,stepsY)
-                
-            if((pos[0] - player.position()[0]) < 0 and (pos[1] - player.position()[1]) < 0):
-                player.control(-steps,-stepsY)
+            if((pos[0] - player.position()[0]) < 0 and (pos[1] - player.position()[1]) < 0): # Clicou pra sudoeste
+                if (XorY>0):
+                    player.control(-steps,-stepsY)
+                else:
+                    player.control(-stepsX,-steps)
             
         # O Player buga quando clicamos 2 vezes. Ele tende a ir mais rápido,
         # Para isso, enquanto o player estiver Andando = true, não pode ser possível aumentar a velocidade
