@@ -9,7 +9,7 @@ import os
 Variables
 '''
 worldx = 1500
-worldy = 820
+worldy = 800
 fps = 40  # frame rate
 ani = 4  # animation cycles
 world = pygame.display.set_mode([worldx, worldy])
@@ -50,6 +50,13 @@ class Player(pygame.sprite.Sprite):
         self.movex += x
         self.movey += y
         
+        if(x==0 and y==0):
+            self.movex = 0
+            self.movey = 0
+
+        
+
+        
     def update(self):
         """
         Update sprite position
@@ -80,9 +87,10 @@ class Player(pygame.sprite.Sprite):
         
         #moving animation sul
         
-    
+    def position(self):
+        return self.rect.x, self.rect.y
         
-
+ 
     
 '''
 Setup
@@ -107,6 +115,7 @@ player.rect.y = 600  # go to y
 player_list = pygame.sprite.Group()
 player_list.add(player)
 steps = 10
+requiredPos = (0,0)
 
 
 
@@ -125,30 +134,32 @@ while main:
                 sys.exit()
             finally:
                 main = False
-
-        if event.type == pygame.KEYDOWN:
-            if event.key == ord('z'):
-                pygame.quit()
-                
-            if event.key == pygame.K_LEFT or event.key == ord('a'):
-                player.control(-steps,0)
-            if event.key == pygame.K_RIGHT or event.key == ord('d'):
-                player.control(steps,0)
-                
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_LEFT or event.key == ord('a'):
-                player.control(steps,0)
-            if event.key == pygame.K_RIGHT or event.key == ord('d'):
-                player.control(-steps,0)
-                
                 
         if pygame.mouse.get_pressed()[0]:
+            pos = pygame.mouse.get_pos()
+            requiredPos = pos
+            if((pos[0] - player.position()[0]) > 0 and (pos[1] - player.position()[1]) > 0):
+                player.control(steps,steps) # Como o steps é igual para o movimento de X e de Y, ele só sabe andar em diagonal..
+                                            # o valor de steps pra X e Y precisa ser um cálculo exato
+                                            # se o player está em (500,500) e ele quer ir para (600,900), o "steps" do x poderia ser 10, 
+                                            # porém o steps de y teria de ser (900-500)/(600-500) = 4
+                                            # Ou seja, é necessário o player "andar" 4 vezes mais para chegar no RequiredPos
+                
+            if((pos[0] - player.position()[0]) > 0 and (pos[1] - player.position()[1]) < 0):
+                player.control(steps,-steps)
+                
+            if((pos[0] - player.position()[0]) < 0 and (pos[1] - player.position()[1]) > 0):
+                player.control(-steps,steps)
+                
+            if((pos[0] - player.position()[0]) < 0 and (pos[1] - player.position()[1]) < 0):
+                player.control(-steps,-steps)
             
-                pos = pygame.mouse.get_pos()
-                
-                #player.move_towards_point(pos[0], pos[1])
-                
-                
+        
+    
+    if((requiredPos[0] - player.position()[0]) < 10 and (requiredPos[0] - player.position()[0]) > -10):
+        player.control(0,0)
+    
+   
     world.blit(backdrop, backdropbox)
     player.update()
     player_list.draw(world)
