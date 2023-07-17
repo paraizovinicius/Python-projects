@@ -138,23 +138,25 @@ while main:
         if pygame.mouse.get_pressed()[0]:
             pos = pygame.mouse.get_pos()
             requiredPos = pos
+            stepsY = ((pos[1]-player.position()[1])/(pos[0]-player.position()[0]))*steps
             if((pos[0] - player.position()[0]) > 0 and (pos[1] - player.position()[1]) > 0):
-                player.control(steps,steps) # Como o steps é igual para o movimento de X e de Y, ele só sabe andar em diagonal..
+                player.control(steps,stepsY) # Como o steps é igual para o movimento de X e de Y, ele só sabe andar em diagonal..
                                             # o valor de steps pra X e Y precisa ser um cálculo exato
                                             # se o player está em (500,500) e ele quer ir para (600,900), o "steps" do x poderia ser 10, 
                                             # porém o steps de y teria de ser (900-500)/(600-500) = 4
                                             # Ou seja, é necessário o player "andar" 4 vezes mais para chegar no RequiredPos
                 
             if((pos[0] - player.position()[0]) > 0 and (pos[1] - player.position()[1]) < 0):
-                player.control(steps,-steps)
+                player.control(steps,-stepsY)
                 
             if((pos[0] - player.position()[0]) < 0 and (pos[1] - player.position()[1]) > 0):
-                player.control(-steps,steps)
+                player.control(-steps,stepsY)
                 
             if((pos[0] - player.position()[0]) < 0 and (pos[1] - player.position()[1]) < 0):
-                player.control(-steps,-steps)
+                player.control(-steps,-stepsY)
             
-        
+        # O Player buga quando clicamos 2 vezes. Ele tende a ir mais rápido,
+        # Para isso, enquanto o player estiver Andando = true, não pode ser possível aumentar a velocidade
     
     if((requiredPos[0] - player.position()[0]) < 10 and (requiredPos[0] - player.position()[0]) > -10):
         player.control(0,0)
