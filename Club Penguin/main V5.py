@@ -1,5 +1,3 @@
-from typing import Tuple
-
 import pygame
 import sys
 import os
@@ -42,6 +40,8 @@ class Player(pygame.sprite.Sprite):
             self.images.append(img)
             self.image = self.images[0]
             self.rect = self.image.get_rect()
+            
+        # Centralizar o player não pela cabeça, mas pelos pés
             
     def control(self, x, y):
         """
@@ -140,14 +140,16 @@ while main:
             requiredPos = pos
             
             if (pos[0]-player.position()[0]) == 0: # se não teve mudança no eixo X (evitar erro de DIV/0)
-                stepsY = 10
+                stepsY = 5
             else: 
                 stepsY = abs(((pos[1]-player.position()[1])/(pos[0]-player.position()[0]))*steps)
                 
             if (pos[1]-player.position()[1]) == 0: # se não teve mudança no eixo Y (evitar erro de DIV/0)
-                stepsX = 10
+                stepsX = 5
             else:
                 stepsX = abs(((pos[0]-player.position()[0])/(pos[1]-player.position()[1]))*steps)
+                
+            
                 
             # o valor de steps pra X e Y precisa ser um cálculo exato
             # se o player está em (500,500) e ele quer ir para (600,900), o "steps" do x poderia ser 10, 

@@ -1,5 +1,3 @@
-from typing import Tuple
-
 import pygame
 import sys
 import os
@@ -9,7 +7,7 @@ import os
 Variables
 '''
 worldx = 1500
-worldy = 820
+worldy = 800
 fps = 40  # frame rate
 ani = 4  # animation cycles
 world = pygame.display.set_mode([worldx, worldy])
@@ -34,7 +32,7 @@ class Player(pygame.sprite.Sprite):
         self.movey = 0
         self.frame = 0
         self.images = []
-        for i in range(1, 5):
+        for i in range(1, 8):
             img = pygame.image.load(os.path.join('Python-projects','Club Penguin','images', 'player' + str(i) + '.png')).convert()
             img = pygame.transform.scale(img, (player_width, player_height))  # Resize the image
             img.convert_alpha()  # optimise alpha
@@ -43,12 +41,23 @@ class Player(pygame.sprite.Sprite):
             self.image = self.images[0]
             self.rect = self.image.get_rect()
             
+            
+        
+        # Centralizar o player não pela cabeça, mas pelos pés
+            
     def control(self, x, y):
         """
         control player movement
         """
         self.movex += x
         self.movey += y
+        
+        if(x==0 and y==0):
+            self.movex = 0
+            self.movey = 0
+
+        
+
         
     def update(self):
         """
@@ -57,41 +66,33 @@ class Player(pygame.sprite.Sprite):
 
         self.rect.x = self.rect.x + self.movex
         self.rect.y = self.rect.y + self.movey
+        
+        # moving animation leste
+        
+        # moving animation oeste
 
-        # moving left
+        # moving animation sudoeste
         if self.movex < 0:
             self.frame += 1
             if self.frame > 3*ani:
                 self.frame = 0
             self.image = pygame.transform.flip(self.images[self.frame // ani], True, False)
 
-        # moving right
+        # moving animation sudeste
         if self.movex > 0:
             self.frame += 1
             if self.frame > 3*ani:
                 self.frame = 0
             self.image = self.images[self.frame//ani]
-
-'''
-    def move_towards_point(self, target_x, target_y):
-        """
-        Move the player towards the target coordinates
-        """
-        dx = target_x - self.rect.x
-        dy = target_y - self.rect.y
-
-        # Calculate the normalized direction
-        distance = max(abs(dx), abs(dy))
-        direction_x = dx / distance if distance != 0 else 0
-        direction_y = dy / distance if distance != 0 else 0
-
-        # Set the player's movement
-        self.control(direction_x * steps, direction_y * steps)
-'''   
+            
+        # moving animation norte
         
+        #moving animation sul
         
-
-    
+    def position(self):
+        return self.rect.x, self.rect.y
+        
+ 
     
 '''
 Setup
@@ -115,8 +116,7 @@ player.rect.x = 700  # go to x
 player.rect.y = 600  # go to y
 player_list = pygame.sprite.Group()
 player_list.add(player)
-steps = 10
-
+requiredPos = (0,0)
 
 
 
@@ -134,20 +134,35 @@ while main:
                 sys.exit()
             finally:
                 main = False
-
-        if event.type == pygame.KEYDOWN:
-            if event.key == ord('esc'):
-                pygame.quit()
-            try:
-                sys.exit()
-            finally:
-                main = False
                 
         if pygame.mouse.get_pressed()[0]:
-                pos = pygame.mouse.get_pos()
-                #player.move_towards_point(pos[0], pos[1])
+            pos = pygame.mouse.get_pos()
+            requiredPos = pos
+            stepsX = abs((pos[0] - player.position()[0]))/40 
+            stepsY = abs((pos[1] - player.position()[1]))/40
+
+            if((pos[0] - player.position()[0]) > 0 and (pos[1] - player.position()[1]) > 0): # Clicou pra nordeste
+                    player.control(stepsX,stepsY)
+               
+            if((pos[0] - player.position()[0]) > 0 and (pos[1] - player.position()[1]) < 0): # Clicou pra sudeste
+                    player.control(stepsX,-stepsY)
                 
                 
+            if((pos[0] - player.position()[0]) < 0 and (pos[1] - player.position()[1]) > 0): # Clicou pra noroeste
+                    player.control(-stepsX,stepsY)
+                
+                
+            if((pos[0] - player.position()[0]) < 0 and (pos[1] - player.position()[1]) < 0): # Clicou pra sudoeste
+                    player.control(-stepsX,-stepsY)
+                
+            
+        # O Player buga quando clicamos 2 vezes. Ele tende a ir mais rápido,
+        # Para isso, enquanto o player estiver Andando = true, não pode ser possível aumentar a velocidade
+    
+    if(abs(requiredPos[0] - player.position()[0]) < 10 and (abs(requiredPos[0] - player.position()[0]) > -10) or (abs(requiredPos[1] - player.position()[1]) < 10 and abs(requiredPos[1] - player.position()[1]) > -10)):
+        player.control(0,0)
+    
+   
     world.blit(backdrop, backdropbox)
     player.update()
     player_list.draw(world)
