@@ -202,7 +202,6 @@ while main:
         moving = False
     
     
-    print(requiredPos[0] - player.position()[0])
     world.blit(backdrop, backdropbox)
     player.update()
     player_list.draw(world)
