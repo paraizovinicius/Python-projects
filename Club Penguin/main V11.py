@@ -3,9 +3,6 @@ import sys
 import os
 
 # Precisa:
-# Função de tratamento de colisões do player melhor
-# Centralizar o pivot do player para o midbottom 
-# criar os blocos que servirão para colision do player do mapa
 # criar o mapa completo do Club Penguin multilevel
 
 
