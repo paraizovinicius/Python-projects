@@ -29,18 +29,18 @@ ALPHA = (0, 255, 0)
 
 
 
-class Predio(pygame.sprite.Sprite):
+class Block(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((width, height))  # , pygame.SRCALPHA
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)  # , pygame.SRCALPHA
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
         
     def isInsideWall(x, y):
         # Verifica se o player colidiu com algum prédio
-        for predio in predio_list:
-            if predio.rect.collidepoint(x, y):
+        for block in block_list:
+            if block.rect.collidepoint(x, y):
                 return True
         return False
 
@@ -123,7 +123,7 @@ class Player(pygame.sprite.Sprite):
 
     def collideWithWall(self):
         # Verifica se o player colidiu com algum prédio
-        collisions = pygame.sprite.spritecollide(self, predio_list, False)
+        collisions = pygame.sprite.spritecollide(self, block_list, False)
 
         if collisions:
             return True
@@ -160,18 +160,50 @@ requiredPos = (0, 0)
 steps = 10
 moving = False
 XorY = 0
+collidedPos = (0, 0)
+allowMove = False
 
 
 '''
 DOWNTOWN MAP
 '''
-predio_list = pygame.sprite.Group()
-predio1 =  Predio(530, 290, 430, 50)  # spawn a building
-predio2 = Predio(230, 290, 430, 50)
-predio_list.add(predio1)
-predio_list.add(predio2)
-
-
+block_list = pygame.sprite.Group()
+block1 =  Block(0, 0, 1500, 330)
+block2 =  Block(0, 330, 50, 460)
+block3 =  Block(50, 330, 450, 50)
+block4 =  Block(170, 380, 220, 50)
+block5 =  Block(220, 430, 120, 28)
+block6 =  Block(1030, 330, 470, 50)
+block7 =  Block(1100, 380, 300, 50)
+block8 =  Block(1100, 430, 230, 50)
+block9 =  Block(1330, 380, 200, 40)
+block10 =  Block(50, 550, 180, 400)
+block11 =  Block(100, 580, 180, 300)
+block12 =  Block(150, 660, 180, 200)
+block13 =  Block(330, 720, 80, 80)
+block14 =  Block(1100, 750, 400, 30)
+block15 =  Block(1150, 720, 350, 30)
+block16 =  Block(1200, 690, 300, 30)
+block17 =  Block(1250, 660, 250, 30)
+block18 =  Block(1300, 610, 200, 50)
+block_list.add(block1)
+block_list.add(block2)
+block_list.add(block3)
+block_list.add(block4)
+block_list.add(block5)    
+block_list.add(block6)    
+block_list.add(block7)   
+block_list.add(block8)   
+block_list.add(block9)   
+block_list.add(block10)   
+block_list.add(block11)   
+block_list.add(block12)   
+block_list.add(block13)   
+block_list.add(block14)  
+block_list.add(block15)
+block_list.add(block16)
+block_list.add(block17)   
+block_list.add(block18)     
 
 '''
 Main Loop
@@ -190,6 +222,7 @@ while main:
             moving = True
             pos = pygame.mouse.get_pos()
             requiredPos = pos
+            
 
             if (moving == True):
                 player.control(0, 0)
@@ -214,7 +247,6 @@ while main:
                     stepsX = abs(
                         ((pos[0]-player.position()[0])/(pos[1]-player.position()[1]))*10)
 
-                    # ESTÁ DANDO PROBLEMA PORQUE SE A STEPX OU STEPY TIVER VÍRGULA, ELE VAI DESCONSIDERAR
 
                     # Clicou pra nordeste
                     if ((pos[0] - player.position()[0]) > 0 and (pos[1] - player.position()[1]) > 0):
@@ -259,26 +291,69 @@ while main:
 
     world.blit(backdrop, backdropbox)
 
-    '''
-    if (player.collideWithWall()):  # Lida com a colisão - de uma maneira não muito legal -
-        player.control(0, 0)
-        moving = False
-
-        # jeito "fácil" de lidar com colisão, porém não é o melhor
-        if ((Predio.isInsideWall(player.position()[0], player.position()[1]+11)) == False):
-            player.setPosition(player.position()[0], player.position()[1]+11)
-        if ((Predio.isInsideWall(player.position()[0]+11, player.position()[1])) == False):
-            player.setPosition(player.position()[0]+11, player.position()[1])
-
-        if ((Predio.isInsideWall(player.position()[0], player.position()[1]-11)) == False):
-            player.setPosition(player.position()[0], player.position()[1]-11)
-        if ((Predio.isInsideWall(player.position()[0]-11, player.position()[1])) == False):
-            player.setPosition(player.position()[0]-11, player.position()[1])
-'''
     
+    if (player.collideWithWall()):  # Lida com a colisão 
+        player.control(0, 0)
+        moving = False 
+        collidedPos = player.position()
+        
+        if(Block.isInsideWall(requiredPos[0],requiredPos[1])==False and player.position() == collidedPos):
+            moving = True
+            # se não teve mudança no eixo X (evitar erro de DIV/0)
+            if (pos[0]-player.position()[0]) == 0:
+                player.control(0, steps)
+
+            else:
+                # se não teve mudança no eixo Y (evitar erro de DIV/0)
+                if (pos[1]-player.position()[1]) == 0:
+                    player.control(steps, 0)
+                else:
+
+                    distXorY = abs(pos[0]-player.position()[0]) - \
+                        abs(pos[1]-player.position()[1])
+                    XorY = distXorY
+
+                    stepsY = abs(
+                        ((pos[1]-player.position()[1])/(pos[0]-player.position()[0]))*10)
+
+                    stepsX = abs(
+                        ((pos[0]-player.position()[0])/(pos[1]-player.position()[1]))*10)
+
+
+                    # Clicou pra nordeste
+                    if ((pos[0] - player.position()[0]) > 0 and (pos[1] - player.position()[1]) > 0):
+                        if (distXorY > 0):
+                            # se o caminho de X for maior que o Y, o caminho de Y que será calculado
+                            player.control(steps, stepsY)
+                        else:
+                            # se o caminho de Y for maior que o X, o caminho de X que será calculado
+                            player.control(stepsX, steps)
+
+                    # Clicou pra sudeste
+                    if ((pos[0] - player.position()[0]) > 0 and (pos[1] - player.position()[1]) < 0):
+                        if (distXorY > 0):
+                            player.control(steps, -stepsY)
+                        else:
+                            player.control(stepsX, -steps)
+
+                    # Clicou pra noroeste
+                    if ((pos[0] - player.position()[0]) < 0 and (pos[1] - player.position()[1]) > 0):
+                        if (distXorY > 0):
+                            player.control(-steps, stepsY)
+                        else:
+                            player.control(-stepsX, steps)
+
+                    # Clicou pra sudoeste
+                    if ((pos[0] - player.position()[0]) < 0 and (pos[1] - player.position()[1]) < 0):
+                        if (distXorY > 0):
+                            player.control(-steps, -stepsY)
+                        else:
+                            player.control(-stepsX, -steps)
+            
+
     
     player.update()
     player_list.draw(world)
-    predio_list.draw(world)
+    block_list.draw(world)
     pygame.display.flip()
     clock.tick(fps)

@@ -1,22 +1,21 @@
 import pygame
-import sys
 import os
+import datetime
 
-# Precisa:
-# Função de tratamento de colisões do player melhor
-# Centralizar o pivot do player para o midbottom 
-# criar os blocos que servirão para colision do player do mapa
-# criar o mapa completo do Club Penguin multilevel
-
-
-'''
-Variables
-'''
+pygame.init()
 worldx = 1500
 worldy = 800
+window = pygame.display.set_mode((worldx, worldy))
+clock = pygame.time.Clock()
+backdrop = pygame.image.load(os.path.join(
+    'Python-projects', 'Club Penguin', 'images', 'Downtown' + '.png'))
+backdrop = pygame.transform.scale(backdrop, (worldx, worldy))
+backdropbox = window.get_rect()
+
+
+
 fps = 40  # frame rate
 ani = 4  # animation cycles
-world = pygame.display.set_mode([worldx, worldy])
 player_width = 80
 player_height = 100
 
@@ -26,23 +25,8 @@ WHITE = (254, 254, 254)
 ALPHA = (0, 255, 0)
 
 
-
-
-
-class Predio(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((width, height))  # , pygame.SRCALPHA
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
         
-    def isInsideWall(x, y):
-        # Verifica se o player colidiu com algum prédio
-        for predio in predio_list:
-            if predio.rect.collidepoint(x, y):
-                return True
-        return False
+        
 
 
 class Player(pygame.sprite.Sprite):
@@ -101,7 +85,8 @@ class Player(pygame.sprite.Sprite):
             self.frame += 1
             if self.frame > 3*ani:
                 self.frame = 0
-            self.image = pygame.transform.flip(self.images[self.frame // ani], True, False)
+            self.image = pygame.transform.flip(
+                self.images[self.frame // ani], True, False)
 
         # moving animation sudeste
         if self.movex > 0:
@@ -120,33 +105,42 @@ class Player(pygame.sprite.Sprite):
     def setPosition(self, x, y):
         player.rect.x = x
         player.rect.y = y
-
+        
     def collideWithWall(self):
-        # Verifica se o player colidiu com algum prédio
-        collisions = pygame.sprite.spritecollide(self, predio_list, False)
+        # Verifica se o player colidiu com algum bloco
+        collisions = pygame.sprite.spritecollide(self, block_list, False)
 
         if collisions:
             return True
         else:
             return False
 
+# O rect permanece o mesmo, mesmo se a imagem aparenta estar rotacionada. Ou seja, as colisões estão sendo feitas no rect antigo
+class Block(pygame.sprite.Sprite):
+    def __init__(self, width, height, x, y, angle):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((width, height))
+        self.image.fill(BLACK)
+        self.image.set_colorkey(ALPHA)
 
-'''
-Setup
-'''
+        self.original_image = self.image.copy()
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
 
-backdrop = pygame.image.load(os.path.join('Python-projects', 'Club Penguin', 'images', 'Downtown' + '.png'))
-backdrop = pygame.transform.scale(backdrop, (worldx, worldy))
-clock = pygame.time.Clock()
-pygame.init()
-backdropbox = world.get_rect()
-main = True
+        # Rotate the image and update the rect
+        self.image = pygame.transform.rotate(self.original_image, angle)
+        self.rect = self.image.get_rect(center=self.rect.center)
 
-blockSize = 10  # Set the size of the grid block
-for x in range(0, worldx, blockSize):
-    for y in range(0, worldy, blockSize):
-        rect = pygame.Rect(x, y, blockSize, blockSize)
-        pygame.draw.rect(world, (10, 10, 10,), rect, 1)
+    def update(self):
+        pass
+
+    def rotate(self, angle):
+        self.image = pygame.transform.rotate(self.original_image, angle)
+        self.rect = self.image.get_rect(center=self.rect.center)
+            
+    
+
+
 
 
 player = Player()  # spawn player
@@ -155,6 +149,16 @@ player.rect.y = 600  # go to y
 player_list = pygame.sprite.Group()
 player_list.add(player)
 
+center = window.get_rect().center
+#(self, width, height, surf, origin, pivot, angle):
+Block1 = Block(400, 400, center[0]-200, center[1]-400, 20)
+#Block2 = Block(400, 400, center[0] - 120, center[1] - 20, 61)
+#Block3 = Block(400, 400, center[0] - 80, center[1] - 115, -155)
+block_list = pygame.sprite.Group()
+block_list.add(Block1)
+#block_list.add(Block2)
+#block_list.add(Block3)
+
 # Inicialização de algumas variáveis
 requiredPos = (0, 0)
 steps = 10
@@ -162,30 +166,16 @@ moving = False
 XorY = 0
 
 
-'''
-DOWNTOWN MAP
-'''
-predio_list = pygame.sprite.Group()
-predio1 =  Predio(530, 290, 430, 50)  # spawn a building
-predio2 = Predio(230, 290, 430, 50)
-predio_list.add(predio1)
-predio_list.add(predio2)
+
+    
 
 
-
-'''
-Main Loop
-'''
-
-while main:
+start_time = pygame.time.get_ticks()
+run = True
+while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            pygame.quit()
-            try:
-                sys.exit()
-            finally:
-                main = False
-
+            run = False
         if (pygame.mouse.get_pressed()[0]):
             moving = True
             pos = pygame.mouse.get_pos()
@@ -213,8 +203,6 @@ while main:
 
                     stepsX = abs(
                         ((pos[0]-player.position()[0])/(pos[1]-player.position()[1]))*10)
-
-                    # ESTÁ DANDO PROBLEMA PORQUE SE A STEPX OU STEPY TIVER VÍRGULA, ELE VAI DESCONSIDERAR
 
                     # Clicou pra nordeste
                     if ((pos[0] - player.position()[0]) > 0 and (pos[1] - player.position()[1]) > 0):
@@ -246,7 +234,7 @@ while main:
                         else:
                             player.control(-stepsX, -steps)
 
-    # Função de parada do player
+        # Função de parada do player
     if (XorY > 0 and (abs(requiredPos[0] - player.position()[0]) < 10 and (abs(requiredPos[0] - player.position()[0]) > -10))):
         player.control(0, 0)
         moving = False
@@ -255,30 +243,24 @@ while main:
     if (XorY < 0 and (abs(requiredPos[1] - player.position()[1]) < 10 and (abs(requiredPos[1] - player.position()[1]) > -10))):
         player.control(0, 0)
         moving = False
-
-
-    world.blit(backdrop, backdropbox)
-
-    '''
-    if (player.collideWithWall()):  # Lida com a colisão - de uma maneira não muito legal -
+        
+    if (player.collideWithWall()):  # Lida com a colisão
         player.control(0, 0)
         moving = False
 
-        # jeito "fácil" de lidar com colisão, porém não é o melhor
-        if ((Predio.isInsideWall(player.position()[0], player.position()[1]+11)) == False):
-            player.setPosition(player.position()[0], player.position()[1]+11)
-        if ((Predio.isInsideWall(player.position()[0]+11, player.position()[1])) == False):
-            player.setPosition(player.position()[0]+11, player.position()[1])
 
-        if ((Predio.isInsideWall(player.position()[0], player.position()[1]-11)) == False):
-            player.setPosition(player.position()[0], player.position()[1]-11)
-        if ((Predio.isInsideWall(player.position()[0]-11, player.position()[1])) == False):
-            player.setPosition(player.position()[0]-11, player.position()[1])
-'''
+    now = datetime.datetime.now()
+
+    window.fill(0)
+    window.blit(backdrop, backdropbox)
+    
     
     
     player.update()
-    player_list.draw(world)
-    predio_list.draw(world)
+    player_list.draw(window)
+    block_list.draw(window)
     pygame.display.flip()
     clock.tick(fps)
+
+pygame.quit()
+exit()
