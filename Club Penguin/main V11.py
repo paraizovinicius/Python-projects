@@ -2,7 +2,10 @@ import pygame
 import sys
 import os
 
-# Precisa:
+# Tarefas:
+# Melhorar o mapa com mais blocos
+# Melhorar os sprites do pinguim
+# Adicionar movimentos do pinguim para todos os lados (frente, trás, nordeste, noroeste) e ajustar condicionais
 # criar o mapa completo do Club Penguin multilevel
 
 
