@@ -58,6 +58,7 @@ class Player(pygame.sprite.Sprite):
 
         self.images = []
         for i in range(1, 8):
+            
             img = pygame.image.load(os.path.join('Python-projects', 'Club Penguin', 'images', 'player' + str(i) + '.png')).convert()
             img = pygame.transform.scale(img, (player_width, player_height))  # Resize the image
             img.convert_alpha()  # optimise alpha
@@ -65,12 +66,7 @@ class Player(pygame.sprite.Sprite):
             self.images.append(img)
             self.image = self.images[0]
             self.rect = self.image.get_rect()
-            
-            origin = self.image.get_rect().midbottom # Centralizar o player não pela cabeça, mas pelos pés
-            
-            #pivot = self.image.get_rect(midbottom=(origin[0],origin[1]))
-            
-
+        
         
 
     def control(self, x, y):
@@ -115,7 +111,10 @@ class Player(pygame.sprite.Sprite):
         # moving animation sul
 
     def position(self):
-        return self.rect.x, self.rect.y
+        
+        #player_width = 80
+        #player_height = 100
+        return self.rect.x + 40, self.rect.y + 80
 
     def setPosition(self, x, y):
         player.rect.x = x
@@ -204,6 +203,10 @@ block_list.add(block15)
 block_list.add(block16)
 block_list.add(block17)   
 block_list.add(block18)     
+
+
+
+
 
 '''
 Main Loop

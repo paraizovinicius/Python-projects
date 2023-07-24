@@ -67,7 +67,7 @@ class Player(pygame.sprite.Sprite):
             self.rect = self.image.get_rect()
             
             origin = self.image.get_rect().midbottom # Centralizar o player não pela cabeça, mas pelos pés
-            
+            print(origin)
             #pivot = self.image.get_rect(midbottom=(origin[0],origin[1]))
             
 
