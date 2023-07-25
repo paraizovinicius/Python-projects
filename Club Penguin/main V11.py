@@ -29,7 +29,7 @@ ALPHA = (0, 255, 0)
 class Block(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((width, height))  # , pygame.SRCALPHA
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)  # , pygame.SRCALPHA
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -110,7 +110,7 @@ class Player(pygame.sprite.Sprite):
         # moving animation sul
 
     def position(self):
-        return self.rect.x + 40, self.rect.y + 80
+        return self.rect.x + 40, self.rect.y + 70
 
     def collideWithWall(self):
         # Verifica se o player colidiu com algum prédio
