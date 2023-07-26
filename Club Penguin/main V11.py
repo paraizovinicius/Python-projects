@@ -3,7 +3,6 @@ import sys
 import os
 
 # Tarefas:
-# Melhorar a função de colisão dos blocos
 # Melhorar os sprites do pinguim
 # Adicionar movimentos do pinguim para todos os lados (frente, trás, nordeste, noroeste) e ajustar condicionais
 # criar o mapa completo do Club Penguin multilevel
@@ -17,8 +16,10 @@ worldy = 800
 fps = 40  # frame rate
 ani = 4  # animation cycles
 world = pygame.display.set_mode([worldx, worldy])
-player_width = 80
+player_width = 80 
 player_height = 100
+
+
 
 BLUE = (25, 25, 200)
 BLACK = (23, 23, 23)
@@ -56,10 +57,8 @@ class Player(pygame.sprite.Sprite):
         self.images = []
         for i in range(1, 8):
 
-            img = pygame.image.load(os.path.join(
-                'Python-projects', 'Club Penguin', 'images', 'player' + str(i) + '.png')).convert()
-            img = pygame.transform.scale(
-                img, (player_width, player_height))  # Resize the image
+            img = pygame.image.load(os.path.join('Python-projects', 'Club Penguin', 'images', 'player' + str(i) + '.png')).convert()
+            img = pygame.transform.scale(img, (player_width, player_height))  # Resize the image
             img.convert_alpha()  # optimise alpha
             img.set_colorkey(ALPHA)  # set alpha
             self.images.append(img)
