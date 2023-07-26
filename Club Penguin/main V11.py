@@ -55,7 +55,7 @@ class Player(pygame.sprite.Sprite):
         self.frame = 0
 
         self.images = []
-        for i in range(1, 8):
+        for i in range(1, 7):
 
             img = pygame.image.load(os.path.join('Python-projects', 'Club Penguin', 'images', 'player' + str(i) + '.png')).convert()
             img = pygame.transform.scale(img, (player_width, player_height))  # Resize the image
@@ -83,6 +83,8 @@ class Player(pygame.sprite.Sprite):
 
         self.rect.x = self.rect.x + self.movex
         self.rect.y = self.rect.y + self.movey
+        
+        # self.frame vai de 0 a 12, sendo que cada frame representa uma iteração na imagem (imagem é atualizada a cada frame)
 
         
         # moving animation leste
@@ -94,8 +96,7 @@ class Player(pygame.sprite.Sprite):
             self.frame += 1
             if self.frame > 3*ani:
                 self.frame = 0
-            self.image = pygame.transform.flip(
-                self.images[self.frame // ani], True, False)
+            self.image = pygame.transform.flip(self.images[self.frame // ani], True, False)
 
         # moving animation sudeste
         if self.movex > 0:
@@ -200,15 +201,20 @@ def walk(pos):
     XorY = 10
     player.control(0, 0)
 
-    # se não teve mudança no eixo X (evitar erro de DIV/0)
+
     if (pos[0]-player.position()[0]) == 0:
-        player.control(0, steps)
+        if(pos[1]-player.position()[1] >0):
+            player.control(0, steps)
+        else:
+            player.control(0, -steps)
         return -XorY
 
     else:
-        # se não teve mudança no eixo Y (evitar erro de DIV/0)
         if (pos[1]-player.position()[1]) == 0:
-            player.control(steps, 0)
+            if(pos[0]-player.position()[0] > 0):
+                player.control(steps, 0)
+            else:
+                player.control(-steps, 0)
             return XorY
         else:
 
